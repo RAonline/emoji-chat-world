@@ -14,13 +14,168 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      channels: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          name: string
+          server_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind?: string
+          name: string
+          server_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          name?: string
+          server_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "channels_server_id_fkey"
+            columns: ["server_id"]
+            isOneToOne: false
+            referencedRelation: "servers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          attachment_name: string | null
+          attachment_type: string | null
+          attachment_url: string | null
+          author_id: string
+          channel_id: string
+          content: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          attachment_name?: string | null
+          attachment_type?: string | null
+          attachment_url?: string | null
+          author_id: string
+          channel_id: string
+          content?: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          attachment_name?: string | null
+          attachment_type?: string | null
+          attachment_url?: string | null
+          author_id?: string
+          channel_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "channels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          emoji: string
+          id: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          emoji?: string
+          id: string
+          username: string
+        }
+        Update: {
+          created_at?: string
+          emoji?: string
+          id?: string
+          username?: string
+        }
+        Relationships: []
+      }
+      server_members: {
+        Row: {
+          created_at: string
+          id: string
+          role: string
+          server_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: string
+          server_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: string
+          server_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "server_members_server_id_fkey"
+            columns: ["server_id"]
+            isOneToOne: false
+            referencedRelation: "servers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      servers: {
+        Row: {
+          created_at: string
+          emoji: string
+          id: string
+          is_public: boolean
+          name: string
+          owner_id: string
+        }
+        Insert: {
+          created_at?: string
+          emoji?: string
+          id?: string
+          is_public?: boolean
+          name: string
+          owner_id: string
+        }
+        Update: {
+          created_at?: string
+          emoji?: string
+          id?: string
+          is_public?: boolean
+          name?: string
+          owner_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_server_member: {
+        Args: { _server_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
