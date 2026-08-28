@@ -240,7 +240,7 @@ function Index() {
               </div>
               <div className="space-y-2">
                 <Label>Server emoji</Label>
-                <EmojiPicker emojis={SERVER_EMOJIS} value={newEmoji} onChange={setNewEmoji} />
+                <EmojiPicker options={SERVER_EMOJIS} value={newEmoji} onChange={setNewEmoji} />
               </div>
             </div>
             <DialogFooter>
