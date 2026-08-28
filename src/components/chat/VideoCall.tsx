@@ -93,12 +93,27 @@ export function VideoCall({ channelId, onLeave }: { channelId: string; onLeave: 
     const start = async () => {
       let stream: MediaStream;
       try {
+        if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
+          throw new Error("insecure");
+        }
         stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-      } catch {
-        toast.error("Camera or microphone unavailable");
+      } catch (error) {
+        const name = (error as { name?: string; message?: string })?.name ?? "";
+        if ((error as Error)?.message === "insecure") {
+          toast.error("Camera needs a secure page — open the app in its own tab over https.");
+        } else if (name === "NotAllowedError" || name === "SecurityError") {
+          toast.error("Camera/mic permission was blocked. Allow access in your browser, then rejoin.");
+        } else if (name === "NotFoundError" || name === "OverconstrainedError") {
+          toast.error("No camera or microphone found on this device.");
+        } else if (name === "NotReadableError") {
+          toast.error("Your camera is already in use by another app.");
+        } else {
+          toast.error("Camera or microphone unavailable");
+        }
         onLeave();
         return;
       }
+
       if (cancelled) {
         stream.getTracks().forEach((t) => t.stop());
         return;

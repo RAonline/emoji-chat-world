@@ -40,12 +40,18 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
-  const [emoji, setEmoji] = useState(() => randomEmoji(AVATAR_EMOJIS));
+  const [emoji, setEmoji] = useState<string>(AVATAR_EMOJIS[0] ?? "🙂");
   const [busy, setBusy] = useState(false);
+
+  // Randomize only after hydration so server and client markup match.
+  useEffect(() => {
+    setEmoji(randomEmoji(AVATAR_EMOJIS));
+  }, []);
 
   useEffect(() => {
     if (!loading && user) void router.navigate({ to: "/" });
   }, [loading, user, router]);
+
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
