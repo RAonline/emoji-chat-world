@@ -24,17 +24,19 @@ import { VideoCall } from "@/components/chat/VideoCall";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Emoji Chat — Global chat, servers & video calls" },
+      { title: "Pcord — Global chat, servers & video calls" },
       {
         name: "description",
         content:
           "Hang out in global chat, build your own servers, share GIFs and files, and jump into video calls with an emoji profile.",
       },
-      { property: "og:title", content: "Emoji Chat — Global chat, servers & video calls" },
+      { property: "og:title", content: "Pcord — Global chat, servers & video calls" },
       {
         property: "og:description",
         content: "Global chat rooms, your own servers, GIF uploads and 6-person video calls.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Index,
