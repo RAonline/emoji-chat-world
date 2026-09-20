@@ -157,7 +157,7 @@ function Index() {
   };
 
   const subtitle = useMemo(() => {
-    if (!activeServer) return "Global — everyone on Emoji Chat";
+    if (!activeServer) return "Global — everyone on Pcord";
     return servers.find((s) => s.id === activeServer)?.name ?? "Server";
   }, [activeServer, servers]);
 
@@ -173,7 +173,7 @@ function Index() {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background px-6 text-center">
         <h1 className="text-4xl font-bold text-foreground">
-          Emoji Chat <span className="text-primary">✦</span>
+          Pcord <span className="text-primary">✦</span>
         </h1>
         <p className="max-w-md text-muted-foreground">
           Global chat, your own servers, GIF and file uploads, and video calls — with an emoji as
