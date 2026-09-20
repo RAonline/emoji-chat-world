@@ -15,13 +15,13 @@ import logo from "@/assets/logo.png";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Sign in — Emojicord" },
+      { title: "Sign in — Pcord" },
       {
         name: "description",
         content:
-          "Create your Emojicord account with an emoji avatar and join the global chat, servers and video calls.",
+          "Create your Pcord account with an emoji avatar and join the global chat, servers and video calls.",
       },
-      { property: "og:title", content: "Sign in — Emojicord" },
+      { property: "og:title", content: "Sign in — Pcord" },
       {
         property: "og:description",
         content: "Emoji-only profiles, global chat, your own servers and 6-person video calls.",
@@ -108,7 +108,7 @@ function AuthPage() {
         <div className="flex items-center gap-3">
           <img src={logo} alt="" width={40} height={40} className="h-10 w-10" />
           <div>
-            <h1 className="glow-text text-2xl font-bold text-primary">Emojicord</h1>
+            <h1 className="glow-text text-2xl font-bold text-primary">Pcord</h1>
             <p className="text-xs text-muted-foreground">
               Global chat · your own servers · video calls
             </p>

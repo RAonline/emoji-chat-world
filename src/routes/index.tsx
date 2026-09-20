@@ -24,17 +24,19 @@ import { VideoCall } from "@/components/chat/VideoCall";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Emoji Chat — Global chat, servers & video calls" },
+      { title: "Pcord — Global chat, servers & video calls" },
       {
         name: "description",
         content:
           "Hang out in global chat, build your own servers, share GIFs and files, and jump into video calls with an emoji profile.",
       },
-      { property: "og:title", content: "Emoji Chat — Global chat, servers & video calls" },
+      { property: "og:title", content: "Pcord — Global chat, servers & video calls" },
       {
         property: "og:description",
         content: "Global chat rooms, your own servers, GIF uploads and 6-person video calls.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Index,
@@ -157,7 +159,7 @@ function Index() {
   };
 
   const subtitle = useMemo(() => {
-    if (!activeServer) return "Global — everyone on Emoji Chat";
+    if (!activeServer) return "Global — everyone on Pcord";
     return servers.find((s) => s.id === activeServer)?.name ?? "Server";
   }, [activeServer, servers]);
 
@@ -173,7 +175,7 @@ function Index() {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background px-6 text-center">
         <h1 className="text-4xl font-bold text-foreground">
-          Emoji Chat <span className="text-primary">✦</span>
+          Pcord <span className="text-primary">✦</span>
         </h1>
         <p className="max-w-md text-muted-foreground">
           Global chat, your own servers, GIF and file uploads, and video calls — with an emoji as
