@@ -427,6 +427,65 @@ function Index() {
         </DialogContent>
       </Dialog>
 
+      <Dialog open={addChannelOpen} onOpenChange={setAddChannelOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add a channel</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Channel name</Label>
+              <Input
+                value={newChannelName}
+                onChange={(e) => setNewChannelName(e.target.value)}
+                placeholder="memes"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Channel type</Label>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant={newChannelKind === "text" ? "default" : "secondary"}
+                  onClick={() => setNewChannelKind("text")}
+                >
+                  <Hash className="mr-1 h-4 w-4" /> Text
+                </Button>
+                <Button
+                  type="button"
+                  variant={newChannelKind === "voice" ? "default" : "secondary"}
+                  onClick={() => setNewChannelKind("voice")}
+                >
+                  <Volume2 className="mr-1 h-4 w-4" /> Voice
+                </Button>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={addChannel} disabled={savingChannel || !newChannelName.trim()}>
+              {savingChannel ? "Creating…" : "Create channel"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!renameTarget} onOpenChange={(open) => !open && setRenameTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rename channel</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label>Channel name</Label>
+            <Input value={renameValue} onChange={(e) => setRenameValue(e.target.value)} />
+          </div>
+          <DialogFooter>
+            <Button onClick={renameChannel} disabled={savingChannel || !renameValue.trim()}>
+              {savingChannel ? "Saving…" : "Save"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <span className="hidden" data-global-channel={GLOBAL_TEXT} />
     </main>
   );
