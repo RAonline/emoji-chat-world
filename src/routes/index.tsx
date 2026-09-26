@@ -164,6 +164,48 @@ function Index() {
     toast.success("Server created");
   };
 
+  const isOwner = useMemo(
+    () => !!user && !!activeServer && servers.find((s) => s.id === activeServer)?.owner_id === user.id,
+    [user, activeServer, servers],
+  );
+
+  const addChannel = async () => {
+    if (!activeServer || !newChannelName.trim()) return;
+    setSavingChannel(true);
+    const { error } = await supabase.from("channels").insert({
+      server_id: activeServer,
+      name: newChannelName.trim().toLowerCase().replace(/\s+/g, "-"),
+      kind: newChannelKind,
+    });
+    setSavingChannel(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setAddChannelOpen(false);
+    setNewChannelName("");
+    setNewChannelKind("text");
+    await loadChannels(activeServer);
+    toast.success("Channel created");
+  };
+
+  const renameChannel = async () => {
+    if (!renameTarget || !renameValue.trim()) return;
+    setSavingChannel(true);
+    const { error } = await supabase
+      .from("channels")
+      .update({ name: renameValue.trim().toLowerCase().replace(/\s+/g, "-") })
+      .eq("id", renameTarget.id);
+    setSavingChannel(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setRenameTarget(null);
+    await loadChannels(activeServer);
+    toast.success("Channel renamed");
+  };
+
   const subtitle = useMemo(() => {
     if (!activeServer) return "Global — everyone on Pcord";
     return servers.find((s) => s.id === activeServer)?.name ?? "Server";
