@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Compass, Globe, Hash, LogOut, Plus, Volume2 } from "lucide-react";
+import { Compass, Globe, Hash, LogOut, Pencil, Plus, Volume2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -65,6 +65,12 @@ function Index() {
   const [newName, setNewName] = useState("");
   const [newEmoji, setNewEmoji] = useState(() => randomEmoji(SERVER_EMOJIS));
   const [creating, setCreating] = useState(false);
+  const [addChannelOpen, setAddChannelOpen] = useState(false);
+  const [newChannelName, setNewChannelName] = useState("");
+  const [newChannelKind, setNewChannelKind] = useState<"text" | "voice">("text");
+  const [savingChannel, setSavingChannel] = useState(false);
+  const [renameTarget, setRenameTarget] = useState<ChannelRow | null>(null);
+  const [renameValue, setRenameValue] = useState("");
 
   const loadServers = useCallback(async () => {
     if (!user) return;
