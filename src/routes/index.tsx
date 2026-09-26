@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Compass, Globe, Hash, LogOut, Plus, Volume2 } from "lucide-react";
+import { Compass, Globe, Hash, LogOut, Pencil, Plus, Volume2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -65,6 +65,12 @@ function Index() {
   const [newName, setNewName] = useState("");
   const [newEmoji, setNewEmoji] = useState(() => randomEmoji(SERVER_EMOJIS));
   const [creating, setCreating] = useState(false);
+  const [addChannelOpen, setAddChannelOpen] = useState(false);
+  const [newChannelName, setNewChannelName] = useState("");
+  const [newChannelKind, setNewChannelKind] = useState<"text" | "voice">("text");
+  const [savingChannel, setSavingChannel] = useState(false);
+  const [renameTarget, setRenameTarget] = useState<ChannelRow | null>(null);
+  const [renameValue, setRenameValue] = useState("");
 
   const loadServers = useCallback(async () => {
     if (!user) return;
@@ -156,6 +162,48 @@ function Index() {
     await loadServers();
     setActiveServer(data.id);
     toast.success("Server created");
+  };
+
+  const isOwner = useMemo(
+    () => !!user && !!activeServer && servers.find((s) => s.id === activeServer)?.owner_id === user.id,
+    [user, activeServer, servers],
+  );
+
+  const addChannel = async () => {
+    if (!activeServer || !newChannelName.trim()) return;
+    setSavingChannel(true);
+    const { error } = await supabase.from("channels").insert({
+      server_id: activeServer,
+      name: newChannelName.trim().toLowerCase().replace(/\s+/g, "-"),
+      kind: newChannelKind,
+    });
+    setSavingChannel(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setAddChannelOpen(false);
+    setNewChannelName("");
+    setNewChannelKind("text");
+    await loadChannels(activeServer);
+    toast.success("Channel created");
+  };
+
+  const renameChannel = async () => {
+    if (!renameTarget || !renameValue.trim()) return;
+    setSavingChannel(true);
+    const { error } = await supabase
+      .from("channels")
+      .update({ name: renameValue.trim().toLowerCase().replace(/\s+/g, "-") })
+      .eq("id", renameTarget.id);
+    setSavingChannel(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setRenameTarget(null);
+    await loadChannels(activeServer);
+    toast.success("Channel renamed");
   };
 
   const subtitle = useMemo(() => {
@@ -263,31 +311,57 @@ function Index() {
 
       {/* Channel list */}
       <aside className="flex w-60 flex-col border-r border-border bg-card/40">
-        <div className="border-b border-border px-4 py-3">
+        <div className="flex items-center justify-between border-b border-border px-4 py-3">
           <p className="truncate text-sm font-semibold">{subtitle}</p>
+          {isOwner && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 shrink-0"
+              title="Add channel"
+              onClick={() => setAddChannelOpen(true)}
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          )}
         </div>
         <nav className="flex-1 space-y-1 overflow-y-auto p-2">
           {channels.map((c) => (
-            <button
-              key={c.id}
-              onClick={() => {
-                setInCall(null);
-                if (c.kind === "voice") setInCall(c);
-                else setActiveChannel(c);
-              }}
-              className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition ${
-                (inCall?.id ?? activeChannel?.id) === c.id
-                  ? "bg-primary/15 text-primary"
-                  : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
-              }`}
-            >
-              {c.kind === "voice" ? (
-                <Volume2 className="h-4 w-4" />
-              ) : (
-                <Hash className="h-4 w-4" />
-              )}
-              {c.name}
-            </button>
+            <div key={c.id} className="group relative">
+              <button
+                onClick={() => {
+                  setInCall(null);
+                  if (c.kind === "voice") setInCall(c);
+                  else setActiveChannel(c);
+                }}
+                className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition ${
+                  (inCall?.id ?? activeChannel?.id) === c.id
+                    ? "bg-primary/15 text-primary"
+                    : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                }`}
+              >
+                {c.kind === "voice" ? (
+                  <Volume2 className="h-4 w-4" />
+                ) : (
+                  <Hash className="h-4 w-4" />
+                )}
+                <span className="flex-1 truncate text-left">{c.name}</span>
+                {isOwner && (
+                  <span
+                    role="button"
+                    title="Rename channel"
+                    className="hidden shrink-0 rounded p-0.5 hover:bg-muted group-hover:block"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setRenameTarget(c);
+                      setRenameValue(c.name);
+                    }}
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </span>
+                )}
+              </button>
+            </div>
           ))}
         </nav>
         <div className="flex items-center gap-2 border-t border-border p-3">
@@ -350,6 +424,65 @@ function Index() {
               );
             })}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={addChannelOpen} onOpenChange={setAddChannelOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add a channel</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Channel name</Label>
+              <Input
+                value={newChannelName}
+                onChange={(e) => setNewChannelName(e.target.value)}
+                placeholder="memes"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Channel type</Label>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant={newChannelKind === "text" ? "default" : "secondary"}
+                  onClick={() => setNewChannelKind("text")}
+                >
+                  <Hash className="mr-1 h-4 w-4" /> Text
+                </Button>
+                <Button
+                  type="button"
+                  variant={newChannelKind === "voice" ? "default" : "secondary"}
+                  onClick={() => setNewChannelKind("voice")}
+                >
+                  <Volume2 className="mr-1 h-4 w-4" /> Voice
+                </Button>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={addChannel} disabled={savingChannel || !newChannelName.trim()}>
+              {savingChannel ? "Creating…" : "Create channel"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!renameTarget} onOpenChange={(open) => !open && setRenameTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rename channel</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label>Channel name</Label>
+            <Input value={renameValue} onChange={(e) => setRenameValue(e.target.value)} />
+          </div>
+          <DialogFooter>
+            <Button onClick={renameChannel} disabled={savingChannel || !renameValue.trim()}>
+              {savingChannel ? "Saving…" : "Save"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

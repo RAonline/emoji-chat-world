@@ -1,0 +1,1 @@
+CREATE POLICY "channels_update_owner" ON public.channels FOR UPDATE TO authenticated USING (server_id IS NOT NULL AND EXISTS (SELECT 1 FROM servers s WHERE s.id = channels.server_id AND s.owner_id = auth.uid())) WITH CHECK (server_id IS NOT NULL AND EXISTS (SELECT 1 FROM servers s WHERE s.id = channels.server_id AND s.owner_id = auth.uid()));
